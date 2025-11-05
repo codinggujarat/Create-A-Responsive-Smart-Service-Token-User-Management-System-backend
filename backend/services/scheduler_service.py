@@ -4,6 +4,7 @@ from ..models import db, User, CompletedWork
 from ..utils.email_service import send_reminder_email
 from datetime import datetime, timedelta
 import logging
+import traceback
 
 logger = logging.getLogger(__name__)
 
@@ -39,26 +40,34 @@ def check_and_send_reminders(app, mail):
                         logger.error(f"Failed to send reminder to Token #{target_user.token_number}")
                         
         except Exception as e:
-            logger.error(f"Error in scheduler task: {str(e)}")
+            error_msg = f"Error in scheduler task: {str(e)}"
+            logger.error(error_msg)
+            logger.error(f"Traceback: {traceback.format_exc()}")
 
 def start_scheduler(app, mail):
-    # Use ThreadPoolExecutor which is compatible with Windows
-    executors = {
-        'default': ThreadPoolExecutor(20),
-    }
-    
-    scheduler = BackgroundScheduler(executors=executors)
-    
-    scheduler.add_job(
-        func=lambda: check_and_send_reminders(app, mail),
-        trigger='interval',
-        minutes=1,
-        id='reminder_check',
-        name='Check and send reminders every minute',
-        replace_existing=True
-    )
-    
-    scheduler.start()
-    logger.info("Scheduler started successfully")
-    
-    return scheduler
+    try:
+        # Use ThreadPoolExecutor which is compatible with Windows
+        executors = {
+            'default': ThreadPoolExecutor(20),
+        }
+        
+        scheduler = BackgroundScheduler(executors=executors)
+        
+        scheduler.add_job(
+            func=lambda: check_and_send_reminders(app, mail),
+            trigger='interval',
+            minutes=1,
+            id='reminder_check',
+            name='Check and send reminders every minute',
+            replace_existing=True
+        )
+        
+        scheduler.start()
+        logger.info("Scheduler started successfully")
+        
+        return scheduler
+    except Exception as e:
+        error_msg = f"Error starting scheduler: {str(e)}"
+        logger.error(error_msg)
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        return None

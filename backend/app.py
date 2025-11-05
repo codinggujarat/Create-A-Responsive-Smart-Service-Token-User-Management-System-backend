@@ -9,6 +9,7 @@ from backend.routes.admin_routes import admin_bp
 from backend.services.scheduler_service import start_scheduler
 import os
 import logging
+import traceback
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -27,10 +28,19 @@ def create_app():
     app.register_blueprint(admin_bp)
     
     with app.app_context():
-        db.create_all()
-        logger.info("Database tables created successfully")
+        try:
+            db.create_all()
+            logger.info("Database tables created successfully")
+        except Exception as e:
+            logger.error(f"Error creating database tables: {str(e)}")
+            logger.error(f"Traceback: {traceback.format_exc()}")
     
-    start_scheduler(app, mail)
+    try:
+        start_scheduler(app, mail)
+        logger.info("Scheduler started successfully")
+    except Exception as e:
+        logger.error(f"Error starting scheduler: {str(e)}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
     
     @app.route('/health')
     def health():
@@ -42,7 +52,10 @@ def create_app():
     
     @app.route('/')
     def index():
-        return send_from_directory(app.static_folder, 'index.html')
+        if app.static_folder and os.path.exists(os.path.join(app.static_folder, 'index.html')):
+            return send_from_directory(app.static_folder, 'index.html')
+        else:
+            return jsonify({'error': 'Frontend not built yet. Please run "npm run build"'}), 503
     
     @app.errorhandler(404)
     def not_found(e):
@@ -52,9 +65,17 @@ def create_app():
         if path and not path.startswith('/'):
             path = '/' + path
         file_path = path[1:] if path.startswith('/') else path
-        if file_path and os.path.exists(os.path.join(app.static_folder, file_path)):
+        if app.static_folder and file_path and os.path.exists(os.path.join(app.static_folder, file_path)):
             return send_from_directory(app.static_folder, file_path)
-        return send_from_directory(app.static_folder, 'index.html')
+        if app.static_folder and os.path.exists(os.path.join(app.static_folder, 'index.html')):
+            return send_from_directory(app.static_folder, 'index.html')
+        return jsonify({'error': 'Frontend not built yet. Please run "npm run build"'}), 503
+    
+    @app.errorhandler(500)
+    def internal_error(e):
+        logger.error(f"Internal server error: {str(e)}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        return {'error': 'Internal server error occurred'}, 500
     
     return app
 
