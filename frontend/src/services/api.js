@@ -1,6 +1,8 @@
 import axios from 'axios'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://smart-service-token-backend.onrender.com'
+// Use relative URLs for API calls when on Vercel (will be rewritten to backend)
+// Use environment variable for local development or custom deployments
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
 
 const api = axios.create({
   baseURL: API_BASE_URL,
