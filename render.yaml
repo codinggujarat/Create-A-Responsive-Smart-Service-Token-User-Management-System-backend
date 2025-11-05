@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: smart-service-token-backend
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT backend.app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
