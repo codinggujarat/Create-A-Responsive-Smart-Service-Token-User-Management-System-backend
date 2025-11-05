@@ -134,6 +134,10 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
 2. Add your domain (e.g., `api.myapp.com`)
 3. Follow the DNS configuration instructions provided
 
+## Step 7: Redeploy Both Services
+
+After making these changes, redeploy both your frontend on Vercel and backend on Render to ensure all fixes are applied.
+
 ## Troubleshooting Common Issues
 
 ### 404 Errors on Client-Side Routes
@@ -154,6 +158,18 @@ If you encounter 404 errors when accessing routes like `/admin/login` on Vercel:
    }
    ```
 2. Redeploy your frontend on Vercel
+
+### ModuleNotFoundError when deploying to Render
+If you encounter a `ModuleNotFoundError: No module named 'app'` error when deploying to Render:
+1. Ensure your [backend/app.py](file:///c%3A/Users/91704/Downloads/SmartServiceToken-2/backend/app.py) has an [app](file://c:\Users\91704/Downloads/SmartServiceToken-2/backend/app.py#L0-L62) variable at the module level:
+   ```python
+   app = create_app()
+   ```
+2. Ensure your [render.yaml](file:///c%3A/Users/91704/Downloads/SmartServiceToken-2/render.yaml) has the correct start command:
+   ```yaml
+   startCommand: gunicorn --bind 0.0.0.0:$PORT backend.app:app
+   ```
+3. Redeploy your backend on Render
 
 ### CORS Errors
 If you encounter CORS errors:
