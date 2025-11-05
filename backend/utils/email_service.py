@@ -1,8 +1,12 @@
 from flask_mail import Message
 from flask import current_app
+import traceback
 
 def send_confirmation_email(mail, user_data):
     try:
+        # Log email attempt
+        current_app.logger.info(f"Attempting to send confirmation email to {user_data['email']}")
+        
         msg = Message(
             subject=f"Service Request Confirmed - Token #{user_data['token_number']}",
             recipients=[user_data['email']],
@@ -34,13 +38,19 @@ def send_confirmation_email(mail, user_data):
             """
         )
         mail.send(msg)
+        current_app.logger.info(f"Successfully sent confirmation email to {user_data['email']}")
         return True
     except Exception as e:
-        current_app.logger.error(f"Failed to send confirmation email: {str(e)}")
+        error_msg = f"Failed to send confirmation email to {user_data['email']}: {str(e)}"
+        current_app.logger.error(error_msg)
+        current_app.logger.error(f"Traceback: {traceback.format_exc()}")
         return False
 
 def send_reminder_email(mail, user_data):
     try:
+        # Log email attempt
+        current_app.logger.info(f"Attempting to send reminder email to {user_data['email']}")
+        
         msg = Message(
             subject=f"Service Reminder - Token #{user_data['token_number']}",
             recipients=[user_data['email']],
@@ -68,7 +78,10 @@ def send_reminder_email(mail, user_data):
             """
         )
         mail.send(msg)
+        current_app.logger.info(f"Successfully sent reminder email to {user_data['email']}")
         return True
     except Exception as e:
-        current_app.logger.error(f"Failed to send reminder email: {str(e)}")
+        error_msg = f"Failed to send reminder email to {user_data['email']}: {str(e)}"
+        current_app.logger.error(error_msg)
+        current_app.logger.error(f"Traceback: {traceback.format_exc()}")
         return False

@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from backend.models import db, User, CompletedWork
 from backend.utils.email_service import send_confirmation_email
 from flask import current_app
+import traceback
 
 user_bp = Blueprint('user', __name__)
 
@@ -51,11 +52,15 @@ def submit_user():
         
         mail = current_app.extensions.get('mail')
         if mail:
+            current_app.logger.info("Mail extension is available, attempting to send confirmation email")
             email_sent = send_confirmation_email(mail, user_data)
-            if not email_sent:
-                current_app.logger.warning(f"Failed to send confirmation email for user {new_user.id}")
+            if email_sent:
+                current_app.logger.info(f"Confirmation email sent successfully to {email}")
+            else:
+                current_app.logger.warning(f"Failed to send confirmation email to {email}")
         else:
             current_app.logger.warning("Mail extension not available, skipping email confirmation")
+            current_app.logger.info("Check if MAIL_USERNAME and MAIL_PASSWORD are set in environment variables")
         
         return jsonify({
             'success': True,
@@ -67,6 +72,7 @@ def submit_user():
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"Error submitting user: {str(e)}")
+        current_app.logger.error(f"Traceback: {traceback.format_exc()}")
         return jsonify({'error': 'Failed to submit user data. Please try again.'}), 500
 
 @user_bp.route('/api/next-token', methods=['GET'])
@@ -77,4 +83,5 @@ def get_next_token():
         return jsonify({'next_token': next_token}), 200
     except Exception as e:
         current_app.logger.error(f"Error getting next token: {str(e)}")
+        current_app.logger.error(f"Traceback: {traceback.format_exc()}")
         return jsonify({'error': 'Failed to get next token'}), 500
