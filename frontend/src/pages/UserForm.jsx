@@ -39,11 +39,15 @@ const UserForm = () => {
     setMessage({ type: '', text: '' })
 
     try {
+      console.log('Submitting form data:', formData)
       const response = await userApi.submitUser(formData)
+      console.log('Submission response:', response)
+
       setMessage({
         type: 'success',
         text: `Success! Your token number is #${response.data.token_number}. A confirmation email has been sent to ${formData.email}.`
       })
+
       setFormData({
         name: '',
         email: '',
@@ -51,11 +55,18 @@ const UserForm = () => {
         contact_number: '',
         work_description: ''
       })
+
       fetchNextToken()
     } catch (error) {
+      console.error('Submission error:', error)
+      const errorMessage = error.response?.data?.error ||
+        error.response?.data?.message ||
+        error.message ||
+        'Failed to submit. Please try again.'
+
       setMessage({
         type: 'error',
-        text: error.response?.data?.error || 'Failed to submit. Please try again.'
+        text: errorMessage
       })
     } finally {
       setLoading(false)
@@ -162,11 +173,10 @@ const UserForm = () => {
             </div>
 
             {message.text && (
-              <div className={`p-4 rounded-lg ${
-                message.type === 'success' 
-                  ? 'bg-green-50 text-green-800 border border-green-200' 
+              <div className={`p-4 rounded-lg ${message.type === 'success'
+                  ? 'bg-green-50 text-green-800 border border-green-200'
                   : 'bg-red-50 text-red-800 border border-red-200'
-              }`}>
+                }`}>
                 {message.text}
               </div>
             )}

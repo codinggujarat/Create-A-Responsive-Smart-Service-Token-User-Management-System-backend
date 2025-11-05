@@ -18,6 +18,14 @@ api.interceptors.request.use((config) => {
   return config
 })
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error('API Error:', error.response || error.message)
+    return Promise.reject(error)
+  }
+)
+
 export const userApi = {
   submitUser: (userData) => api.post('/api/submit', userData),
   getNextToken: () => api.get('/api/next-token')

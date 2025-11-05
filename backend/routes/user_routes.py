@@ -10,6 +10,10 @@ def submit_user():
     try:
         data = request.json
         
+        # Check if data exists
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+            
         name = data.get('name')
         email = data.get('email')
         address = data.get('address')
@@ -35,6 +39,7 @@ def submit_user():
         db.session.add(new_user)
         db.session.commit()
         
+        # Try to send confirmation email, but don't fail the request if it doesn't work
         user_data = {
             'token_number': new_token_number,
             'name': name,
@@ -46,7 +51,11 @@ def submit_user():
         
         mail = current_app.extensions.get('mail')
         if mail:
-            send_confirmation_email(mail, user_data)
+            email_sent = send_confirmation_email(mail, user_data)
+            if not email_sent:
+                current_app.logger.warning(f"Failed to send confirmation email for user {new_user.id}")
+        else:
+            current_app.logger.warning("Mail extension not available, skipping email confirmation")
         
         return jsonify({
             'success': True,
@@ -58,7 +67,7 @@ def submit_user():
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"Error submitting user: {str(e)}")
-        return jsonify({'error': 'Failed to submit user data'}), 500
+        return jsonify({'error': 'Failed to submit user data. Please try again.'}), 500
 
 @user_bp.route('/api/next-token', methods=['GET'])
 def get_next_token():

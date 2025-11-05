@@ -1,4 +1,5 @@
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.executors.pool import ThreadPoolExecutor
 from ..models import db, User, CompletedWork
 from ..utils.email_service import send_reminder_email
 from datetime import datetime, timedelta
@@ -41,7 +42,12 @@ def check_and_send_reminders(app, mail):
             logger.error(f"Error in scheduler task: {str(e)}")
 
 def start_scheduler(app, mail):
-    scheduler = BackgroundScheduler()
+    # Use ThreadPoolExecutor which is compatible with Windows
+    executors = {
+        'default': ThreadPoolExecutor(20),
+    }
+    
+    scheduler = BackgroundScheduler(executors=executors)
     
     scheduler.add_job(
         func=lambda: check_and_send_reminders(app, mail),
