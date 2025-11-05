@@ -52,7 +52,7 @@ This guide provides detailed step-by-step instructions to deploy your Smart Serv
 
 5. Configure Build and Start commands:
    - Build Command: `pip install -r requirements.txt`
-   - Start Command: `gunicorn --bind 0.0.0.0:$PORT backend.app:app`
+   - Start Command: `gunicorn --bind 0.0.0.0:$PORT app:app`
 
 6. Go to "Advanced" settings and add these environment variables:
    ```
@@ -161,15 +161,16 @@ If you encounter 404 errors when accessing routes like `/admin/login` on Vercel:
 
 ### ModuleNotFoundError when deploying to Render
 If you encounter a `ModuleNotFoundError: No module named 'app'` error when deploying to Render:
-1. Ensure your [backend/app.py](file:///c%3A/Users/91704/Downloads/SmartServiceToken-2/backend/app.py) has an [app](file://c:\Users\91704/Downloads/SmartServiceToken-2/backend/app.py#L0-L62) variable at the module level:
+1. Ensure your project has an [app.py](file:///c%3A/Users/91704/Downloads/SmartServiceToken-2/app.py) file at the root that imports the app:
    ```python
-   app = create_app()
+   from backend.app import app
    ```
 2. Ensure your [render.yaml](file:///c%3A/Users/91704/Downloads/SmartServiceToken-2/render.yaml) has the correct start command:
    ```yaml
-   startCommand: gunicorn --bind 0.0.0.0:$PORT backend.app:app
+   startCommand: gunicorn --bind 0.0.0.0:$PORT app:app
    ```
-3. Redeploy your backend on Render
+3. Alternatively, you can set the start command directly in the Render dashboard
+4. Redeploy your backend on Render
 
 ### CORS Errors
 If you encounter CORS errors:
