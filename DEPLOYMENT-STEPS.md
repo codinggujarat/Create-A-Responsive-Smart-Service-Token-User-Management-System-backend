@@ -74,19 +74,28 @@ This guide provides detailed step-by-step instructions to deploy your Smart Serv
 9. Once deployed, note your backend URL which will look like:
    `https://smart-service-token-backend.onrender.com`
 
-## Step 3: Update Frontend Configuration (Optional)
+## Step 3: Update Frontend Configuration
 
-For local development, you can create a [.env.local](file:///c%3A/Users%5C91704%5CDownloads%5CSmartServiceToken-2/.env.local) file in the frontend directory with:
-```
-VITE_API_URL=http://localhost:5001
-```
+1. Update both [vercel.json](file:///c%3A/Users/91704/Downloads/SmartServiceToken-2/vercel.json) and [frontend/vercel.json](file:///c%3A/Users/91704/Downloads/SmartServiceToken-2/frontend/vercel.json) to replace `https://your-render-backend-url.onrender.com` with your actual Render backend URL:
+   ```json
+   {
+     "rewrites": [
+       {
+         "source": "/api/(.*)",
+         "destination": "https://your-actual-render-backend-url.onrender.com/api/$1"
+       },
+       {
+         "source": "/(.*)",
+         "destination": "/index.html"
+       }
+     ]
+   }
+   ```
 
-For production deployment on Vercel, the frontend will automatically use relative URLs which will be rewritten to your backend.
-
-If you want to use a custom backend URL in production, update [frontend/src/services/api.js](file:///c%3A/Users/91704/Downloads/SmartServiceToken-2/frontend/src/services/api.js):
-```javascript
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
-```
+2. For local development, you can create a [.env.local](file:///c%3A/Users%5C91704%5CDownloads%5CSmartServiceToken-2/.env.local) file in the frontend directory with:
+   ```
+   VITE_API_URL=http://localhost:5001
+   ```
 
 ## Step 4: Deploy Frontend to Vercel
 
@@ -105,7 +114,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
      - Output Directory: `dist`
 
 5. Add environment variables (only if needed for local development):
-   - `VITE_API_URL`: `https://smart-service-token-backend.onrender.com` (your actual Render backend URL)
+   - `VITE_API_URL`: `https://your-actual-render-backend-url.onrender.com` (your actual Render backend URL)
 
 6. Click "Deploy"
 
@@ -148,7 +157,7 @@ If you encounter 404 errors when accessing routes like `/admin/login` on Vercel:
      "rewrites": [
        {
          "source": "/api/(.*)",
-         "destination": "/api"
+         "destination": "https://your-render-backend-url.onrender.com/api/$1"
        },
        {
          "source": "/(.*)",
@@ -158,6 +167,13 @@ If you encounter 404 errors when accessing routes like `/admin/login` on Vercel:
    }
    ```
 2. Redeploy your frontend on Vercel
+
+### Bad Gateway Errors (502)
+If you encounter "Bad Gateway" errors:
+1. Verify that your Render backend is running correctly
+2. Ensure the backend URL in your Vercel configuration is correct
+3. Check that CORS is properly configured in your Flask app
+4. Make sure API endpoints in [frontend/src/services/api.js](file:///c%3A/Users/91704/Downloads/SmartServiceToken-2/frontend/src/services/api.js) include the `/api` prefix
 
 ### ModuleNotFoundError when deploying to Render
 If you encounter a `ModuleNotFoundError: No module named 'app'` error when deploying to Render:

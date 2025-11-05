@@ -1,8 +1,7 @@
 import axios from 'axios'
 
-// Use relative URLs for API calls when on Vercel (will be rewritten to backend)
-// Use environment variable for local development or custom deployments
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
+// Use environment variable for API calls, fallback to relative URL for Vercel proxy
+const API_BASE_URL = import.meta.env.VITE_API_URL || ''
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -20,18 +19,18 @@ api.interceptors.request.use((config) => {
 })
 
 export const userApi = {
-  submitUser: (userData) => api.post('/submit', userData),
-  getNextToken: () => api.get('/next-token')
+  submitUser: (userData) => api.post('/api/submit', userData),
+  getNextToken: () => api.get('/api/next-token')
 }
 
 export const adminApi = {
-  login: (credentials) => api.post('/admin/login', credentials),
-  getUsers: (params) => api.get('/admin/users', { params }),
-  updateUserStatus: (userId, status) => api.put(`/admin/users/${userId}`, { status }),
-  getStats: () => api.get('/admin/stats'),
-  exportExcel: () => api.get('/admin/export/excel', { responseType: 'blob' }),
-  exportCSV: () => api.get('/admin/export/csv', { responseType: 'blob' }),
-  exportPDF: () => api.get('/admin/export/pdf', { responseType: 'blob' })
+  login: (credentials) => api.post('/api/admin/login', credentials),
+  getUsers: (params) => api.get('/api/admin/users', { params }),
+  updateUserStatus: (userId, status) => api.put(`/api/admin/users/${userId}`, { status }),
+  getStats: () => api.get('/api/admin/stats'),
+  exportExcel: () => api.get('/api/admin/export/excel', { responseType: 'blob' }),
+  exportCSV: () => api.get('/api/admin/export/csv', { responseType: 'blob' }),
+  exportPDF: () => api.get('/api/admin/export/pdf', { responseType: 'blob' })
 }
 
 export default api
