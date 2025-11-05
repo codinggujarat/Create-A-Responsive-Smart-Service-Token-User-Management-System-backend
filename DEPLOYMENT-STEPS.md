@@ -136,6 +136,25 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
 
 ## Troubleshooting Common Issues
 
+### 404 Errors on Client-Side Routes
+If you encounter 404 errors when accessing routes like `/admin/login` on Vercel:
+1. Ensure your [frontend/vercel.json](file:///c%3A/Users/91704/Downloads/SmartServiceToken-2/frontend/vercel.json) has the correct rewrite rules:
+   ```json
+   {
+     "rewrites": [
+       {
+         "source": "/api/(.*)",
+         "destination": "/api"
+       },
+       {
+         "source": "/(.*)",
+         "destination": "/index.html"
+       }
+     ]
+   }
+   ```
+2. Redeploy your frontend on Vercel
+
 ### CORS Errors
 If you encounter CORS errors:
 1. Ensure your backend has CORS enabled in [backend/app.py](file:///c%3A/Users/91704/Downloads/SmartServiceToken-2/backend/app.py):
