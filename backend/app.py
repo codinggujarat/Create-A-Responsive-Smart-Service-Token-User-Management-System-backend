@@ -38,7 +38,7 @@ def create_app():
     
     @app.route('/api/health')
     def api_health():
-        return jsonify({'status': 'healthy', 'timestamp': str(db.session.execute(db.text('SELECT datetime("now");')).fetchone()[0])}), 200
+        return jsonify({'status': 'healthy'}), 200
     
     @app.route('/')
     def index():

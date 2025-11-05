@@ -74,19 +74,19 @@ This guide provides detailed step-by-step instructions to deploy your Smart Serv
 9. Once deployed, note your backend URL which will look like:
    `https://smart-service-token-backend.onrender.com`
 
-## Step 3: Update Frontend Configuration
+## Step 3: Update Frontend Configuration (Optional)
 
-1. Update [frontend/src/services/api.js](file:///c%3A/Users/91704/Downloads/SmartServiceToken-2/frontend/src/services/api.js) to use your Render backend URL:
-   ```javascript
-   const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://smart-service-token-backend.onrender.com'
-   ```
+For local development, you can create a [.env.local](file:///c%3A/Users%5C91704%5CDownloads%5CSmartServiceToken-2/.env.local) file in the frontend directory with:
+```
+VITE_API_URL=http://localhost:5001
+```
 
-2. Commit and push this change:
-   ```bash
-   git add .
-   git commit -m "Update API URL for production"
-   git push origin main
-   ```
+For production deployment on Vercel, the frontend will automatically use relative URLs which will be rewritten to your backend.
+
+If you want to use a custom backend URL in production, update [frontend/src/services/api.js](file:///c%3A/Users/91704/Downloads/SmartServiceToken-2/frontend/src/services/api.js):
+```javascript
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
+```
 
 ## Step 4: Deploy Frontend to Vercel
 
@@ -99,12 +99,12 @@ This guide provides detailed step-by-step instructions to deploy your Smart Serv
 4. Configure the project with these settings:
    - Project Name: `smart-service-token-frontend`
    - Framework Preset: Vite
-   - Root Directory: Leave empty
+   - Root Directory: `frontend`
    - Build and Output Settings:
      - Build Command: `npm run build`
-     - Output Directory: `frontend/dist`
+     - Output Directory: `dist`
 
-5. Add environment variables:
+5. Add environment variables (only if needed for local development):
    - `VITE_API_URL`: `https://smart-service-token-backend.onrender.com` (your actual Render backend URL)
 
 6. Click "Deploy"
